@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 const gltfLoader = new GLTFLoader();
 // Create a scene
 const scene = new THREE.Scene();
-
+scene.background = new THREE.Color(0xffffff);
 // Create a camera
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 0, 5);
@@ -14,12 +14,6 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Create a cube
-const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
-
 gltfLoader.load('/assets/tabel.gltf', (gltf) => {
   const bbox = new THREE.Box3().setFromObject(gltf.scene);
   const center = bbox.getCenter(new THREE.Vector3());
@@ -27,7 +21,6 @@ gltfLoader.load('/assets/tabel.gltf', (gltf) => {
 
   console.log('model size: ', size.x, size.y, size.z);
   
-  const obj = gltf.scene.children[0];
   // obj.position.set(0, 0, 0);
   
   // get the max dimension of the bounding box
@@ -44,15 +37,19 @@ gltfLoader.load('/assets/tabel.gltf', (gltf) => {
   camera.lookAt(center);
 
   // set the model's position to the origin of the bounding box
-  gltf.scene.position.copy(center).multiplyScalar(-1);
-
+  // gltf.scene.position.copy(center).multiplyScalar(-1);
+  gltf.scene.position.set(3.5, 0, 0);
   scene.add(gltf.scene);
 });
 
 gltfLoader.load('./assets/showroom.gltf', (gltf)=>{
   gltf.scene.scale.setScalar(1)
+  gltf.scene.position.set(3.5, 0, 0);
   scene.add(gltf.scene);
 });
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+scene.add(ambientLight);
 
 const floorGeometry = new THREE.PlaneGeometry(10, 10); // width, height
 const floorMaterial = new THREE.MeshStandardMaterial({
@@ -80,7 +77,8 @@ const arrowHelper = new THREE.ArrowHelper(
 scene.add(arrowHelper);
 
 const controls = new OrbitControls(camera, renderer.domElement);
-
+controls.minDistance=5;
+controls.maxDistance=10;
 // Render the scene
 function animate() {
   requestAnimationFrame(animate);
