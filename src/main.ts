@@ -7,14 +7,17 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xffffff);
 // Create a camera
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(100, 100, 100);
+camera.position.set(-1.7, 0, 8.7);
+camera.lookAt(1.7, 0, 8.7);
 
 // Create a renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-gltfLoader.load('/assets/mobile-showroom.gltf', (gltf) => {
+renderer.setClearColor(0xA3A3A3);
+
+gltfLoader.load('/assets/scene.gltf', (gltf) => {
   scene.add(gltf.scene);
 });
 
