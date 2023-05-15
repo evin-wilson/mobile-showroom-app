@@ -6,36 +6,53 @@ const gltfLoader = new GLTFLoader();
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xffffff);
 // Create a camera
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(-1.7, 0, 8.7);
-camera.lookAt(1.7, 0, 8.7);
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(70, 0, -30);
+// camera.position.set(0, 0, 0);
+// camera.rotateZ(Math.PI/2)
 
 // Create a renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-renderer.setClearColor(0xA3A3A3);
-
-gltfLoader.load('/assets/scene.gltf', (gltf) => {
+gltfLoader.load('./assets/mobile-shop.gltf', (gltf)=>{
+  gltf.scene.scale.setScalar(1)
   scene.add(gltf.scene);
 });
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+scene.add(ambientLight);
+
 
 //add light
 const light = new THREE.DirectionalLight(0xffffff, 1)
 light.position.set(2,2,5);
 scene.add(light)
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
-scene.add(ambientLight);
+//arrow for directional light
+const arrowHelper = new THREE.ArrowHelper(
+  light.position.clone().normalize(),
+  light.position,
+  1,
+  0xffffff
+);
+scene.add(arrowHelper);
 
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.minDistance=5;
-controls.maxDistance=50;
+// controls.minDistance=5;
+// controls.maxDistance=10;
 // Render the scene
 function animate() {
   requestAnimationFrame(animate);
+  // cube.rotation.x += 0.01;
+  // cube.rotation.y += 0.01;
   renderer.render(scene, camera);
   controls.update();
+
+  controls.addEventListener( "change", event => {  
+    console.log( controls.object.position ); 
+})
+  
 }
 animate();
