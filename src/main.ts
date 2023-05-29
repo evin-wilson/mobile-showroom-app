@@ -8,6 +8,12 @@ let phones: THREE.Object3D[] = [];
 let mouse = new THREE.Vector2();
 let raycaster = new THREE.Raycaster();
 
+let mouseMoved = false;
+let mouseClciked = false;
+
+const modal = document.querySelector("#modal") as HTMLElement;
+const modalCanvas = document.querySelector('#modal-canvas') as HTMLElement;
+
 // Create a scene
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xffffff);
@@ -23,7 +29,8 @@ const pos = new THREE.Vector3(31, 13, -6.8);
 camera.position.copy(pos); //28, 17, -5
 
 // Create a renderer
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const canvas = document.querySelector("#main-canvas");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
@@ -32,6 +39,7 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enablePan = false;
 controls.enableDamping = true;
 controls.dampingFactor = 0.1;
+controls.addEventListener("change", () => (mouseMoved = true));
 
 const gltfLoader = new GLTFLoader();
 
@@ -123,13 +131,22 @@ function resetMaterials() {
   }
 }
 
-function hoverPieces() {
+function checkIntersection(event) {
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
   raycaster.setFromCamera(mouse, camera);
   const intersects = raycaster.intersectObjects(phones);
+
+  if (intersects.length > 0) {
+    mouseClciked = true;
+  } else {
+    mouseClciked = false;
+    resetMaterials();
+  }
   for (let i = 0; i < intersects.length; i++) {
     let intersectedObject = intersects[i].object;
     if (intersectedObject instanceof THREE.Mesh) {
-      
       // Compute the bounding box of the intersected object
       const boundingBox = new THREE.Box3().setFromObject(intersectedObject);
       const minPoint = boundingBox.min;
@@ -159,23 +176,29 @@ function hoverPieces() {
 
 // Render the scene
 function animate() {
-  resetMaterials();
-  hoverPieces();
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
   controls.update();
 }
 
-function onMouseMove(event) {
-  // calculate mouse position in normalized device coordinates
-  // (-1 to +1) for both components
-
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-}
-
 gui_adder();
 animate();
 
+
+modal.addEventListener("click", (event) => {
+  if (event.target === modal) {
+    modal.style.display = "none";
+  }
+});
 window.addEventListener("resize", onWindowResize);
-window.addEventListener("mousemove", onMouseMove, false);
+window.addEventListener("pointerdown", () => (mouseMoved = false));
+window.addEventListener("pointerup", (event) => {
+  if (mouseMoved === false) {
+    checkIntersection(event);
+
+    if (mouseClciked) {
+      modal.style.display = "block";
+    }
+  }
+});
+window.addEventListener("pointermove", checkIntersection);
