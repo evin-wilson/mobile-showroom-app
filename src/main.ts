@@ -12,11 +12,17 @@ let mouseMoved = false;
 let mouseClciked = false;
 
 const modal = document.querySelector("#modal") as HTMLElement;
-const modalCanvas = document.querySelector('#modal-canvas') as HTMLElement;
+const modalCanvas = document.querySelector("#modal-canvas") as HTMLElement;
+const modalwidth = 500; //modalCanvas.offsetWidth;
+const modalheight = 500; //modalCanvas.offsetHeight;
 
 // Create a scene
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xffffff);
+
+// Create a scene for modal window
+const modalscene = new THREE.Scene();
+modalscene.background = new THREE.Color(0x002355);
 
 // Create a camera
 const camera = new THREE.PerspectiveCamera(
@@ -28,11 +34,37 @@ const camera = new THREE.PerspectiveCamera(
 const pos = new THREE.Vector3(31, 13, -6.8);
 camera.position.copy(pos); //28, 17, -5
 
+// Create a camera for modal window
+const modalcamera = new THREE.PerspectiveCamera(
+  50,
+  modalwidth / modalheight,
+  0.1,
+  1000
+);
+modalcamera.position.z = 5;
+
 // Create a renderer
 const canvas = document.querySelector("#main-canvas");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
+
+// renderer for modal window
+const modalRenderer = new THREE.WebGLRenderer({
+  canvas: modalCanvas,
+  antialias: true,
+});
+modalRenderer.setSize(modalwidth, modalheight);
+
+// Add a sample mesh to modal window
+// TODO nned to update this mesh according to the modal clicked
+const circleGeometry = new THREE.CircleGeometry(1, 32); // Adjust the radius and segments as desired
+const circleMaterial = new THREE.MeshBasicMaterial({
+  color: 0xff0000,
+  side: THREE.DoubleSide,
+}); 
+const circlePicker = new THREE.Mesh(circleGeometry, circleMaterial);
+modalscene.add(circlePicker);
 
 // Created OrbitCOntrols
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -40,6 +72,12 @@ controls.enablePan = false;
 controls.enableDamping = true;
 controls.dampingFactor = 0.1;
 controls.addEventListener("change", () => (mouseMoved = true));
+
+// orbit contols for modal window
+const modalcontrols = new OrbitControls(modalcamera, modalCanvas);
+controls.enablePan = false;
+controls.enableDamping = true;
+controls.dampingFactor = 0.1;
 
 const gltfLoader = new GLTFLoader();
 
@@ -179,11 +217,13 @@ function animate() {
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
   controls.update();
+
+  modalRenderer.render(modalscene, modalcamera);
+  modalcontrols.update();
 }
 
 gui_adder();
 animate();
-
 
 modal.addEventListener("click", (event) => {
   if (event.target === modal) {
@@ -197,7 +237,7 @@ window.addEventListener("pointerup", (event) => {
     checkIntersection(event);
 
     if (mouseClciked) {
-      modal.style.display = "block";
+      modal.style.display = "flex";
     }
   }
 });
