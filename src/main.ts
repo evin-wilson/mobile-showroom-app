@@ -13,7 +13,7 @@ let mouseClciked = false;
 
 const modal = document.querySelector("#modal") as HTMLElement;
 const modalCanvas = document.querySelector("#modal-canvas") as HTMLElement;
-const modalwidth = 500; //modalCanvas.offsetWidth;
+const modalwidth = 800; //modalCanvas.offsetWidth;
 const modalheight = 500; //modalCanvas.offsetHeight;
 
 // Create a scene
@@ -237,7 +237,7 @@ window.addEventListener("pointerup", (event) => {
     checkIntersection(event);
 
     if (mouseClciked) {
-      modal.style.display = "flex";
+      modal.style.display = "block";
     }
   }
 });

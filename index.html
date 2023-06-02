@@ -17,22 +17,19 @@
         height: 100%;
         background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
         z-index: 9999;
-        /* Add other styles as desired */
       }
-      #modal-canvas {
+      .modal-container {
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 75%;
-        height: 75%;
-        background-color: aliceblue;
+        display: flex;
+        width: 1200px;
+        height: 500px;
       }
       .text-container {
-        position: absolute;
-        left: 60%;
-        top: 100px;
-        max-width: 25%;
+        max-width: 400px;
+        overflow: auto;
       }
     </style>
   </head>
@@ -41,60 +38,62 @@
     <script type="module" src="/src/main.ts"></script>
     <canvas id="main-canvas"></canvas>
     <div id="modal" style="display: none">
-      <canvas id="modal-canvas"></canvas>
-      <div class="text-container" style="display: flex">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed commodo
-        lectus at quam sagittis, ut ullamcorper turpis efficitur. Vivamus
-        fringilla massa nec sem pharetra, et dignissim lacus eleifend. Aenean
-        venenatis, lacus nec consectetur consectetur, velit neque vulputate
-        dolor, nec luctus nulla elit sed neque. Vestibulum ante ipsum primis in
-        faucibus orci luctus et ultrices posuere cubilia curae; Sed dictum
-        euismod justo, ac interdum ligula congue nec. Curabitur et consequat
-        mauris. Proin varius neque ut massa rutrum, vitae laoreet dui
-        vestibulum. Sed ut gravida ex. Praesent fermentum, urna ac pulvinar
-        porttitor, risus libero volutpat elit, et maximus ipsum nisi eu nunc.
-        Sed nec enim sit amet massa fermentum dictum. Fusce consequat aliquam
-        ligula, vel fringilla ex consequat vel. Cras posuere congue magna, ut
-        sagittis sem fringilla vel. Nunc vel sem in lectus feugiat fringilla vel
-        id odio. Nulla facilisi. Maecenas commodo elit at ante cursus, et
-        fringilla sem fermentum. Nullam in orci nec arcu condimentum tempor at
-        et massa. Vivamus sit amet efficitur est, id aliquam magna. Integer sem
-        metus, varius id aliquet ac, fermentum id nulla. Quisque sed iaculis
-        enim. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-        commodo lectus at quam sagittis, ut ullamcorper turpis efficitur.
-        Vivamus fringilla massa nec sem pharetra, et dignissim lacus eleifend.
-        Aenean venenatis, lacus nec consectetur consectetur, velit neque
-        vulputate dolor, nec luctus nulla elit sed neque. Vestibulum ante ipsum
-        primis in faucibus orci luctus et ultrices posuere cubilia curae; Sed
-        dictum euismod justo, ac interdum ligula congue nec. Curabitur et
-        consequat mauris. Proin varius neque ut massa rutrum, vitae laoreet dui
-        vestibulum. Sed ut gravida ex. Praesent fermentum, urna ac pulvinar
-        porttitor, risus libero volutpat elit, et maximus ipsum nisi eu nunc.
-        Sed nec enim sit amet massa fermentum dictum. Fusce consequat aliquam
-        ligula, vel fringilla ex consequat vel. Cras posuere congue magna, ut
-        sagittis sem fringilla vel. Nunc vel sem in lectus feugiat fringilla vel
-        id odio. Nulla facilisi. Maecenas commodo elit at ante cursus, et
-        fringilla sem fermentum. Nullam in orci nec arcu condimentum tempor at
-        et massa. Vivamus sit amet efficitur est, id aliquam magna. Integer sem
-        metus, varius id aliquet ac, fermentum id nulla. Quisque sed iaculis
-        enim. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-        commodo lectus at quam sagittis, ut ullamcorper turpis efficitur.
-        Vivamus fringilla massa nec sem pharetra, et dignissim lacus eleifend.
-        Aenean venenatis, lacus nec consectetur consectetur, velit neque
-        vulputate dolor, nec luctus nulla elit sed neque. Vestibulum ante ipsum
-        primis in faucibus orci luctus et ultrices posuere cubilia curae; Sed
-        dictum euismod justo, ac interdum ligula congue nec. Curabitur et
-        consequat mauris. Proin varius neque ut massa rutrum, vitae laoreet dui
-        vestibulum. Sed ut gravida ex. Praesent fermentum, urna ac pulvinar
-        porttitor, risus libero volutpat elit, et maximus ipsum nisi eu nunc.
-        Sed nec enim sit amet massa fermentum dictum. Fusce consequat aliquam
-        ligula, vel fringilla ex consequat vel. Cras posuere congue magna, ut
-        sagittis sem fringilla vel. Nunc vel sem in lectus feugiat fringilla vel
-        id odio. Nulla facilisi. Maecenas commodo elit at ante cursus, et
-        fringilla sem fermentum. Nullam in orci nec arcu condimentum tempor at
-        et massa. Vivamus sit amet efficitur est, id aliquam magna. Integer sem
-        metus, varius id aliquet ac, fermentum id nulla. Quisque sed iaculis
-        enim.
+      <div class="modal-container">
+        <canvas id="modal-canvas"></canvas>
+        <div class="text-container" style="display: flex">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed commodo
+          lectus at quam sagittis, ut ullamcorper turpis efficitur. Vivamus
+          fringilla massa nec sem pharetra, et dignissim lacus eleifend. Aenean
+          venenatis, lacus nec consectetur consectetur, velit neque vulputate
+          dolor, nec luctus nulla elit sed neque. Vestibulum ante ipsum primis
+          in faucibus orci luctus et ultrices posuere cubilia curae; Sed dictum
+          euismod justo, ac interdum ligula congue nec. Curabitur et consequat
+          mauris. Proin varius neque ut massa rutrum, vitae laoreet dui
+          vestibulum. Sed ut gravida ex. Praesent fermentum, urna ac pulvinar
+          porttitor, risus libero volutpat elit, et maximus ipsum nisi eu nunc.
+          Sed nec enim sit amet massa fermentum dictum. Fusce consequat aliquam
+          ligula, vel fringilla ex consequat vel. Cras posuere congue magna, ut
+          sagittis sem fringilla vel. Nunc vel sem in lectus feugiat fringilla
+          vel id odio. Nulla facilisi. Maecenas commodo elit at ante cursus, et
+          fringilla sem fermentum. Nullam in orci nec arcu condimentum tempor at
+          et massa. Vivamus sit amet efficitur est, id aliquam magna. Integer
+          sem metus, varius id aliquet ac, fermentum id nulla. Quisque sed
+          iaculis enim. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          Sed commodo lectus at quam sagittis, ut ullamcorper turpis efficitur.
+          Vivamus fringilla massa nec sem pharetra, et dignissim lacus eleifend.
+          Aenean venenatis, lacus nec consectetur consectetur, velit neque
+          vulputate dolor, nec luctus nulla elit sed neque. Vestibulum ante
+          ipsum primis in faucibus orci luctus et ultrices posuere cubilia
+          curae; Sed dictum euismod justo, ac interdum ligula congue nec.
+          Curabitur et consequat mauris. Proin varius neque ut massa rutrum,
+          vitae laoreet dui vestibulum. Sed ut gravida ex. Praesent fermentum,
+          urna ac pulvinar porttitor, risus libero volutpat elit, et maximus
+          ipsum nisi eu nunc. Sed nec enim sit amet massa fermentum dictum.
+          Fusce consequat aliquam ligula, vel fringilla ex consequat vel. Cras
+          posuere congue magna, ut sagittis sem fringilla vel. Nunc vel sem in
+          lectus feugiat fringilla vel id odio. Nulla facilisi. Maecenas commodo
+          elit at ante cursus, et fringilla sem fermentum. Nullam in orci nec
+          arcu condimentum tempor at et massa. Vivamus sit amet efficitur est,
+          id aliquam magna. Integer sem metus, varius id aliquet ac, fermentum
+          id nulla. Quisque sed iaculis enim. Lorem ipsum dolor sit amet,
+          consectetur adipiscing elit. Sed commodo lectus at quam sagittis, ut
+          ullamcorper turpis efficitur. Vivamus fringilla massa nec sem
+          pharetra, et dignissim lacus eleifend. Aenean venenatis, lacus nec
+          consectetur consectetur, velit neque vulputate dolor, nec luctus nulla
+          elit sed neque. Vestibulum ante ipsum primis in faucibus orci luctus
+          et ultrices posuere cubilia curae; Sed dictum euismod justo, ac
+          interdum ligula congue nec. Curabitur et consequat mauris. Proin
+          varius neque ut massa rutrum, vitae laoreet dui vestibulum. Sed ut
+          gravida ex. Praesent fermentum, urna ac pulvinar porttitor, risus
+          libero volutpat elit, et maximus ipsum nisi eu nunc. Sed nec enim sit
+          amet massa fermentum dictum. Fusce consequat aliquam ligula, vel
+          fringilla ex consequat vel. Cras posuere congue magna, ut sagittis sem
+          fringilla vel. Nunc vel sem in lectus feugiat fringilla vel id odio.
+          Nulla facilisi. Maecenas commodo elit at ante cursus, et fringilla sem
+          fermentum. Nullam in orci nec arcu condimentum tempor at et massa.
+          Vivamus sit amet efficitur est, id aliquam magna. Integer sem metus,
+          varius id aliquet ac, fermentum id nulla. Quisque sed iaculis enim.
+        </div>
       </div>
     </div>
   </body>
