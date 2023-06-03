@@ -11,6 +11,13 @@ let raycaster = new THREE.Raycaster();
 let mouseMoved = false;
 let mouseClciked = false;
 
+const intersetObj = {
+  intersects: false,
+  obj: new THREE.Mesh(),
+  orginalRotation: new THREE.Euler(),
+  normal: new THREE.Vector3(),
+};
+
 const modal = document.querySelector("#modal") as HTMLElement;
 const modalCanvas = document.querySelector("#modal-canvas") as HTMLElement;
 const modalwidth = 800; //modalCanvas.offsetWidth;
@@ -22,25 +29,14 @@ scene.background = new THREE.Color(0xffffff);
 
 // Create a scene for modal window
 const modalscene = new THREE.Scene();
-modalscene.background = new THREE.Color(0x002355);
 
 // Create a camera
-const camera = new THREE.PerspectiveCamera(
-  50,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000
-);
-const pos = new THREE.Vector3(31, 13, -6.8);
+const camera = new THREE.PerspectiveCamera(50,  window.innerWidth / window.innerHeight, 0.1, 1000);
+const pos = new THREE.Vector3(19, 5, -6.8); //31, 13, -6.8
 camera.position.copy(pos); //28, 17, -5
 
 // Create a camera for modal window
-const modalcamera = new THREE.PerspectiveCamera(
-  50,
-  modalwidth / modalheight,
-  0.1,
-  1000
-);
+const modalcamera = new THREE.PerspectiveCamera(50, modalwidth / modalheight, 0.1, 1000);
 modalcamera.position.z = 5;
 
 // Create a renderer
@@ -55,6 +51,9 @@ const modalRenderer = new THREE.WebGLRenderer({
   antialias: true,
 });
 modalRenderer.setSize(modalwidth, modalheight);
+// make renderer transparent
+modalRenderer.setClearColor(0x000000, 0); // Use the alpha value of 0 to make the scene transparent
+modalRenderer.setClearAlpha(0);
 
 // Add a sample mesh to modal window
 // TODO nned to update this mesh according to the modal clicked
@@ -62,7 +61,7 @@ const circleGeometry = new THREE.CircleGeometry(1, 32); // Adjust the radius and
 const circleMaterial = new THREE.MeshBasicMaterial({
   color: 0xff0000,
   side: THREE.DoubleSide,
-}); 
+});
 const circlePicker = new THREE.Mesh(circleGeometry, circleMaterial);
 modalscene.add(circlePicker);
 
@@ -81,7 +80,7 @@ controls.dampingFactor = 0.1;
 
 const gltfLoader = new GLTFLoader();
 
-gltfLoader.load( "./assets/mobile-shop-collection.gltf", (gltf) => {
+gltfLoader.load( "./assets/moble shelf new.glb", (gltf) => {
     const model = gltf.scene;
     gltf.scene.traverse((child) => {
       if (child.name === "phones") {
@@ -159,14 +158,12 @@ function gui_adder() {
   });
 }
 
+// TODO
 function resetMaterials() {
-  // Remove the circle pickers from the scene
-  const circlePickers = scene.children.filter(
-    (child) => child instanceof THREE.Mesh
-  );
-  for (let i = 0; i < circlePickers.length; i++) {
-    scene.remove(circlePickers[i]);
-  }
+  let intialRotation = new THREE.Euler(0, 0, 0);
+  let initialScale = new THREE.Vector3(1, 1, 1);
+  intersetObj.obj.scale.copy(initialScale);
+  // intersetObj.obj.rotation.copy(intialRotation);
 }
 
 function checkIntersection(event) {
@@ -182,34 +179,59 @@ function checkIntersection(event) {
     mouseClciked = false;
     resetMaterials();
   }
+
   for (let i = 0; i < intersects.length; i++) {
     let intersectedObject = intersects[i].object;
     if (intersectedObject instanceof THREE.Mesh) {
-      // Compute the bounding box of the intersected object
-      const boundingBox = new THREE.Box3().setFromObject(intersectedObject);
-      const minPoint = boundingBox.min;
+      intersetObj.intersects = true;
+      intersetObj.obj = intersectedObject;
+      intersetObj.orginalRotation = intersectedObject.rotation.clone();
 
-      // Define an offset value to position the circle picker above the lowest point
-      const offset = 0.1;
+      intersectedObject.scale.set(1, 1.2, 1.2);
 
-      // Add a circle picker to the intersected object
-      const circleGeometry = new THREE.CircleGeometry(1, 32); // Adjust the radius and segments as desired
-      const circleMaterial = new THREE.MeshBasicMaterial({
-        color: 0xff0000,
-        side: THREE.DoubleSide,
-      }); // Set the desired color
-      const circlePicker = new THREE.Mesh(circleGeometry, circleMaterial);
-
-      // Position the circle picker slightly above the lowest point of the intersected object
-      circlePicker.position.set(minPoint.x, minPoint.y + offset, minPoint.z);
-
-      // Rotate the circle picker to face upwards
-      circlePicker.rotation.x = -Math.PI / 2; // Rotate 90 degrees around the x-axis
-
-      // Add the circle picker to the scene
-      scene.add(circlePicker);
+      // addSelectionCircle(minPoint, 0.1, 0.3);
+      // drawthenormal(intersects[i])
     }
   }
+}
+
+function addSelectionCircle(position, PositionOffset, radius) {
+  // Define an offset value to position the circle picker above the lowest point
+  const offset = PositionOffset;
+
+  // Add a circle picker to the intersected object
+  const circleGeometry = new THREE.CircleGeometry(radius, 32);
+  const circleMaterial = new THREE.MeshBasicMaterial({
+    color: 0xff0000,
+    side: THREE.DoubleSide,
+  });
+  const circlePicker = new THREE.Mesh(circleGeometry, circleMaterial);
+
+  // Position the circle picker slightly above the lowest point of the intersected object
+  circlePicker.position.set(position.x, position.y + offset, position.z);
+
+  // Rotate the circle picker to face upwards
+  circlePicker.rotation.x = -Math.PI / 2; // Rotate 90 degrees around the x-axis
+
+  // Add the circle picker to the scene
+  scene.add(circlePicker);
+}
+
+function drawthenormal(intersects) {
+  let ptOnCurve = intersects.point; // intersected pt
+  let faceNormal = intersects.face.normal.normalize(); // face normal
+
+  // draw the normal
+  let normalPts = [];
+  let p1 = new THREE.Vector3(ptOnCurve.x, ptOnCurve.y, ptOnCurve.z).clone();
+  let p2 = faceNormal.clone().multiplyScalar(10).add(p1);
+  normalPts.push(p1);
+  normalPts.push(p2);
+
+  let linematerial = new THREE.LineBasicMaterial({ color: 0x0000ff });
+  let linegeometry = new THREE.BufferGeometry().setFromPoints(normalPts);
+  let line = new THREE.Line(linegeometry, linematerial);
+  scene.add(line);
 }
 
 // Render the scene
@@ -222,7 +244,7 @@ function animate() {
   modalcontrols.update();
 }
 
-gui_adder();
+// gui_adder();
 animate();
 
 modal.addEventListener("click", (event) => {
