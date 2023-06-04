@@ -32,7 +32,7 @@ const modalscene = new THREE.Scene();
 
 // Create a camera
 const camera = new THREE.PerspectiveCamera(50,  window.innerWidth / window.innerHeight, 0.1, 1000);
-const pos = new THREE.Vector3(19, 5, -6.8); //31, 13, -6.8
+const pos = new THREE.Vector3(12, 5.5, -1.1); //31, 13, -6.8
 camera.position.copy(pos); //28, 17, -5
 
 // Create a camera for modal window
@@ -80,16 +80,16 @@ modalcontrols.dampingFactor = 0.1;
 
 const gltfLoader = new GLTFLoader(loadingManager());
 
-gltfLoader.load( "./assets/moble shelf new.glb", (gltf) => {
-    const model = gltf.scene;
+gltfLoader.load( "./assets/mobile-shop.glb", (gltf) => {
+    const mobileShop = gltf.scene;
     gltf.scene.traverse((child) => {
       if (child.name === "phones") {
         phones.push(...child.children);
       }
     });
-    scene.add(model);
+    scene.add(mobileShop);
 
-    const boundingBox = new THREE.Box3().setFromObject(model);
+    const boundingBox = new THREE.Box3().setFromObject(mobileShop);
     const center = boundingBox.getCenter(new THREE.Vector3());
 
     controls.target.copy(center);
@@ -139,9 +139,9 @@ function gui_adder() {
     rotation: camera.rotation.clone(),
   };
 
-  positionFolder.add(cameraValues.position, "x", -100, 100).name("x");
-  positionFolder.add(cameraValues.position, "y", -100, 100).name("y");
-  positionFolder.add(cameraValues.position, "z", -100, 100).name("z");
+  positionFolder.add(cameraValues.position, "x", -100, 100, 0.1).name("x");
+  positionFolder.add(cameraValues.position, "y", -100, 100, 0.1).name("y");
+  positionFolder.add(cameraValues.position, "z", -100, 100, 0.1).name("z");
 
   rotationFolder.add(cameraValues.rotation, "x", -Math.PI, Math.PI).name("x");
   rotationFolder.add(cameraValues.rotation, "y", -Math.PI, Math.PI).name("y");
@@ -225,6 +225,14 @@ function addSelectionCircle(position, PositionOffset, radius) {
 
   // Add the circle picker to the scene
   scene.add(circlePicker);
+}
+
+function helpermodel(radius: number, position: THREE.Vector3) {
+  const helperGeometry = new THREE.SphereGeometry(radius, 16, 16);
+  const helperMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+  const helperModel = new THREE.Mesh(helperGeometry, helperMaterial);
+  helperModel.position.copy(position);
+  scene.add(helperModel);
 }
 
 function drawthenormal(intersects) {
