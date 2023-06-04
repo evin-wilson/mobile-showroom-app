@@ -74,11 +74,11 @@ controls.addEventListener("change", () => (mouseMoved = true));
 
 // orbit contols for modal window
 const modalcontrols = new OrbitControls(modalcamera, modalCanvas);
-controls.enablePan = false;
-controls.enableDamping = true;
-controls.dampingFactor = 0.1;
+modalcontrols.enablePan = false;
+modalcontrols.enableDamping = true;
+modalcontrols.dampingFactor = 0.1;
 
-const gltfLoader = new GLTFLoader();
+const gltfLoader = new GLTFLoader(loadingManager());
 
 gltfLoader.load( "./assets/moble shelf new.glb", (gltf) => {
     const model = gltf.scene;
@@ -94,13 +94,23 @@ gltfLoader.load( "./assets/moble shelf new.glb", (gltf) => {
 
     controls.target.copy(center);
   },
-  (xhr) => {
-    console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
-  },
+  undefined,
   function (e) {
     console.error(e);
   }
 );
+
+function loadingManager() {
+  const progressBar = document.getElementById('progress-bar') as HTMLProgressElement
+  const progressBarContainer = document.querySelector('.progress-bar-container') as HTMLElement
+
+  const manager = new THREE.LoadingManager();
+  manager.onLoad = () => progressBarContainer.style.display = 'none';
+  manager.onProgress = (url, itemsLoaded, itemsTotal) => progressBar.value = (itemsLoaded / itemsTotal) * 100
+  manager.onError = (url) => console.log('There was an error loading ' + url);
+
+  return manager;
+}
 
 //add light
 const light = new THREE.DirectionalLight(0xffffff, 1);
