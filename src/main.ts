@@ -11,6 +11,9 @@ let raycaster = new THREE.Raycaster();
 let mouseMoved = false;
 let mouseClciked = false;
 
+let updatedTarget: THREE.Vector3;
+let orginalTarget: THREE.Vector3;
+
 const intersetObj = {
   intersects: false,
   obj: new THREE.Mesh(),
@@ -91,8 +94,11 @@ gltfLoader.load( "./assets/mobile-shop.glb", (gltf) => {
 
     const boundingBox = new THREE.Box3().setFromObject(mobileShop);
     const center = boundingBox.getCenter(new THREE.Vector3());
-
+    orginalTarget = center.clone();
     controls.target.copy(center);
+
+    center.x -= 2;
+    updatedTarget = center.clone();
   },
   undefined,
   function (e) {
@@ -227,9 +233,13 @@ function addSelectionCircle(position, PositionOffset, radius) {
   scene.add(circlePicker);
 }
 
-function helpermodel(radius: number, position: THREE.Vector3) {
+function helperSphere(radius: number, position: THREE.Vector3, color?: THREE.ColorRepresentation) {
+  if (color === undefined) {
+    const randomColor = new THREE.Color(Math.random(), Math.random(), Math.random());
+    color = randomColor;
+  }
   const helperGeometry = new THREE.SphereGeometry(radius, 16, 16);
-  const helperMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+  const helperMaterial = new THREE.MeshBasicMaterial({ color: color });
   const helperModel = new THREE.Mesh(helperGeometry, helperMaterial);
   helperModel.position.copy(position);
   scene.add(helperModel);
@@ -252,6 +262,19 @@ function drawthenormal(intersects) {
   scene.add(line);
 }
 
+function phoneSelected() {
+  controls.target.copy(updatedTarget);
+  camera.position.y += 5;
+  camera.position.x -= 3;
+  modal.style.display = "block";
+}
+
+function phoneDeselected() {
+  modal.style.display = "none";
+  controls.target.copy(orginalTarget);
+  camera.position.copy(pos);
+}
+
 // Render the scene
 function animate() {
   requestAnimationFrame(animate);
@@ -267,7 +290,7 @@ animate();
 
 modal.addEventListener("click", (event) => {
   if (event.target === modal) {
-    modal.style.display = "none";
+    phoneDeselected();
   }
 });
 window.addEventListener("resize", onWindowResize);
@@ -277,7 +300,7 @@ window.addEventListener("pointerup", (event) => {
     checkIntersection(event);
 
     if (mouseClciked) {
-      modal.style.display = "block";
+      phoneSelected();
     }
   }
 });
