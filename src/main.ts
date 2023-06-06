@@ -40,7 +40,7 @@ camera.position.copy(pos); //28, 17, -5
 
 // Create a camera for modal window
 const modalcamera = new THREE.PerspectiveCamera(50, modalwidth / modalheight, 0.1, 1000);
-modalcamera.position.z = 5;
+modalcamera.position.set(1,1,1);
 
 // Create a renderer
 const canvas = document.querySelector("#main-canvas");
@@ -58,15 +58,6 @@ modalRenderer.setSize(modalwidth, modalheight);
 modalRenderer.setClearColor(0x000000, 0); // Use the alpha value of 0 to make the scene transparent
 modalRenderer.setClearAlpha(0);
 
-// Add a sample mesh to modal window
-// TODO nned to update this mesh according to the modal clicked
-const circleGeometry = new THREE.CircleGeometry(1, 32); // Adjust the radius and segments as desired
-const circleMaterial = new THREE.MeshBasicMaterial({
-  color: 0xff0000,
-  side: THREE.DoubleSide,
-});
-const circlePicker = new THREE.Mesh(circleGeometry, circleMaterial);
-modalscene.add(circlePicker);
 
 // Created OrbitCOntrols
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -204,33 +195,9 @@ function checkIntersection(event) {
       intersetObj.orginalRotation = intersectedObject.rotation.clone();
 
       intersectedObject.scale.set(1, 1.2, 1.2);
-
-      // addSelectionCircle(minPoint, 0.1, 0.3);
       // drawthenormal(intersects[i])
     }
   }
-}
-
-function addSelectionCircle(position, PositionOffset, radius) {
-  // Define an offset value to position the circle picker above the lowest point
-  const offset = PositionOffset;
-
-  // Add a circle picker to the intersected object
-  const circleGeometry = new THREE.CircleGeometry(radius, 32);
-  const circleMaterial = new THREE.MeshBasicMaterial({
-    color: 0xff0000,
-    side: THREE.DoubleSide,
-  });
-  const circlePicker = new THREE.Mesh(circleGeometry, circleMaterial);
-
-  // Position the circle picker slightly above the lowest point of the intersected object
-  circlePicker.position.set(position.x, position.y + offset, position.z);
-
-  // Rotate the circle picker to face upwards
-  circlePicker.rotation.x = -Math.PI / 2; // Rotate 90 degrees around the x-axis
-
-  // Add the circle picker to the scene
-  scene.add(circlePicker);
 }
 
 function helperSphere(radius: number, position: THREE.Vector3, color?: THREE.ColorRepresentation) {
@@ -242,10 +209,10 @@ function helperSphere(radius: number, position: THREE.Vector3, color?: THREE.Col
   const helperMaterial = new THREE.MeshBasicMaterial({ color: color });
   const helperModel = new THREE.Mesh(helperGeometry, helperMaterial);
   helperModel.position.copy(position);
-  scene.add(helperModel);
+  modalscene.add(helperModel);
 }
 
-function drawthenormal(intersects) {
+function drawthenormal(intersects: THREE.Intersection<THREE.Object3D<THREE.Event>>) {
   let ptOnCurve = intersects.point; // intersected pt
   let faceNormal = intersects.face.normal.normalize(); // face normal
 
@@ -267,12 +234,25 @@ function phoneSelected() {
   camera.position.y += 5;
   camera.position.x -= 3;
   modal.style.display = "block";
+
+  let phonePicked = intersetObj.obj.clone()
+  let boundingBox = new THREE.Box3().setFromObject(phonePicked);
+  let center = boundingBox.getCenter(new THREE.Vector3());
+  phonePicked.position.sub(center);
+
+  modalscene.add(phonePicked);
+  modalcontrols.target.set(0,0,0);
 }
 
 function phoneDeselected() {
   modal.style.display = "none";
   controls.target.copy(orginalTarget);
   camera.position.copy(pos);
+
+  while (modalscene.children.length > 0) {
+    const child = modalscene.children[0];
+    modalscene.remove(child);
+  }
 }
 
 // Render the scene
