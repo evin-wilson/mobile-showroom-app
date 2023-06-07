@@ -11,8 +11,8 @@ let raycaster = new THREE.Raycaster();
 let mouseMoved = false;
 let mouseClciked = false;
 
-let updatedTarget: THREE.Vector3;
-let orginalTarget: THREE.Vector3;
+let shelfLookat: THREE.Vector3;
+let tableLookat: THREE.Vector3;
 
 const intersetObj = {
   intersects: false,
@@ -40,7 +40,7 @@ camera.position.copy(pos); //28, 17, -5
 
 // Create a camera for modal window
 const modalcamera = new THREE.PerspectiveCamera(50, modalwidth / modalheight, 0.1, 1000);
-modalcamera.position.set(1,1,1);
+modalcamera.position.set(1,0,0);
 
 // Create a renderer
 const canvas = document.querySelector("#main-canvas");
@@ -71,6 +71,8 @@ const modalcontrols = new OrbitControls(modalcamera, modalCanvas);
 modalcontrols.enablePan = false;
 modalcontrols.enableDamping = true;
 modalcontrols.dampingFactor = 0.1;
+modalcontrols.minDistance = 1.5; 
+modalcontrols.maxDistance = 2;
 
 const gltfLoader = new GLTFLoader(loadingManager());
 
@@ -80,16 +82,16 @@ gltfLoader.load( "./assets/mobile-shop.glb", (gltf) => {
       if (child.name === "phones") {
         phones.push(...child.children);
       }
+      if (child.name === "table-empty"){
+        tableLookat = child.position.clone()
+      }
+      if (child.name === "shelf-empty"){
+        shelfLookat = child.position.clone()
+      }
     });
     scene.add(mobileShop);
 
-    const boundingBox = new THREE.Box3().setFromObject(mobileShop);
-    const center = boundingBox.getCenter(new THREE.Vector3());
-    orginalTarget = center.clone();
-    controls.target.copy(center);
-
-    center.x -= 2;
-    updatedTarget = center.clone();
+    controls.target.copy(shelfLookat);
   },
   undefined,
   function (e) {
@@ -209,7 +211,7 @@ function helperSphere(radius: number, position: THREE.Vector3, color?: THREE.Col
   const helperMaterial = new THREE.MeshBasicMaterial({ color: color });
   const helperModel = new THREE.Mesh(helperGeometry, helperMaterial);
   helperModel.position.copy(position);
-  modalscene.add(helperModel);
+  scene.add(helperModel);
 }
 
 function drawthenormal(intersects: THREE.Intersection<THREE.Object3D<THREE.Event>>) {
@@ -230,9 +232,10 @@ function drawthenormal(intersects: THREE.Intersection<THREE.Object3D<THREE.Event
 }
 
 function phoneSelected() {
-  controls.target.copy(updatedTarget);
-  camera.position.y += 5;
-  camera.position.x -= 3;
+  controls.target.copy(tableLookat);
+  console.log(tableLookat)
+  camera.position.set(7.5, 6.5, -1)
+
   modal.style.display = "block";
 
   let phonePicked = intersetObj.obj.clone()
@@ -246,8 +249,10 @@ function phoneSelected() {
 
 function phoneDeselected() {
   modal.style.display = "none";
-  controls.target.copy(orginalTarget);
+  controls.target.copy(shelfLookat);
   camera.position.copy(pos);
+
+  modalcontrols.reset();
 
   while (modalscene.children.length > 0) {
     const child = modalscene.children[0];

@@ -54,3 +54,28 @@ label {
   font-size: 2rem;
   color: white;
 }
+
+/* Customize the scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  transition: opacity 0.2s ease;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  border-radius: 8px;
+  background-color: #e7e7e7;
+  border: 1px solid #cacaca;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background: #888; 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+  opacity: 1;
+}
