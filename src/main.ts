@@ -2,6 +2,7 @@ import { GUI } from "dat.gui";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { gsap } from "gsap";
 
 let phones: THREE.Object3D[] = [];
 
@@ -232,11 +233,29 @@ function drawthenormal(intersects: THREE.Intersection<THREE.Object3D<THREE.Event
 }
 
 function phoneSelected() {
-  controls.target.copy(tableLookat);
-  console.log(tableLookat)
-  camera.position.set(7.5, 6.5, -1)
+  gsap.to(camera.position, {
+    x: 7.5,
+    y: 6.5,
+    z: -1,
+    duration: 2, 
+    ease: "power2.inOut", 
+    onUpdate: () => {
+      controls.update(); 
+    },
+    onComplete: ()=>{
+      modal.style.display = "block";
+    }
+  });
 
-  modal.style.display = "block";
+  gsap.to(controls.target, {
+    x: tableLookat.x,
+    y: tableLookat.y,
+    z: tableLookat.z,
+    duration: 1, 
+    ease: "power2.inOut",
+  })
+
+  
 
   let phonePicked = intersetObj.obj.clone()
   let boundingBox = new THREE.Box3().setFromObject(phonePicked);
@@ -249,8 +268,24 @@ function phoneSelected() {
 
 function phoneDeselected() {
   modal.style.display = "none";
-  controls.target.copy(shelfLookat);
-  camera.position.copy(pos);
+  gsap.to(camera.position, {
+    x: pos.x,
+    y: pos.y,
+    z: pos.z,
+    duration: 1,
+    ease: "power2.inOut", 
+    onUpdate: () => {
+      controls.update(); 
+    },
+  });
+
+  gsap.to(controls.target, {
+    x: shelfLookat.x,
+    y: shelfLookat.y,
+    z: shelfLookat.z,
+    duration: 1,
+    ease: "power2.inOut",
+  })
 
   modalcontrols.reset();
 
