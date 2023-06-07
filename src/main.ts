@@ -1,8 +1,8 @@
 import { GUI } from "dat.gui";
+import { gsap } from "gsap";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { gsap } from "gsap";
 
 let phones: THREE.Object3D[] = [];
 
@@ -14,6 +14,8 @@ let mouseClciked = false;
 
 let shelfLookat: THREE.Vector3;
 let tableLookat: THREE.Vector3;
+
+let tooltip = null;
 
 const intersetObj = {
   intersects: false,
@@ -59,20 +61,25 @@ modalRenderer.setSize(modalwidth, modalheight);
 modalRenderer.setClearColor(0x000000, 0); // Use the alpha value of 0 to make the scene transparent
 modalRenderer.setClearAlpha(0);
 
-
 // Created OrbitCOntrols
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enablePan = false;
 controls.enableDamping = true;
 controls.dampingFactor = 0.1;
 controls.addEventListener("change", () => (mouseMoved = true));
+controls.minDistance = 5;
+controls.maxDistance = 15;
+controls.minPolarAngle = Math.PI / 4;
+controls.maxPolarAngle = Math.PI / 2;
+controls.minAzimuthAngle = Math.PI / 4;
+controls.maxAzimuthAngle = Math.PI;
 
 // orbit contols for modal window
 const modalcontrols = new OrbitControls(modalcamera, modalCanvas);
 modalcontrols.enablePan = false;
 modalcontrols.enableDamping = true;
 modalcontrols.dampingFactor = 0.1;
-modalcontrols.minDistance = 1.5; 
+modalcontrols.minDistance = 1.5;
 modalcontrols.maxDistance = 2;
 
 const gltfLoader = new GLTFLoader(loadingManager());
@@ -83,11 +90,11 @@ gltfLoader.load( "./assets/mobile-shop.glb", (gltf) => {
       if (child.name === "phones") {
         phones.push(...child.children);
       }
-      if (child.name === "table-empty"){
-        tableLookat = child.position.clone()
+      if (child.name === "table-empty") {
+        tableLookat = child.position.clone();
       }
-      if (child.name === "shelf-empty"){
-        shelfLookat = child.position.clone()
+      if (child.name === "shelf-empty") {
+        shelfLookat = child.position.clone();
       }
     });
     scene.add(mobileShop);
@@ -105,9 +112,9 @@ function loadingManager() {
   const progressBarContainer = document.querySelector('.progress-bar-container') as HTMLElement
 
   const manager = new THREE.LoadingManager();
-  manager.onLoad = () => progressBarContainer.style.display = 'none';
-  manager.onProgress = (url, itemsLoaded, itemsTotal) => progressBar.value = (itemsLoaded / itemsTotal) * 100
-  manager.onError = (url) => console.log('There was an error loading ' + url);
+  manager.onLoad = () => (progressBarContainer.style.display = "none");
+  manager.onProgress = (url, itemsLoaded, itemsTotal) => (progressBar.value = (itemsLoaded / itemsTotal) * 100);
+  manager.onError = (url) => console.log("There was an error loading " + url);
 
   return manager;
 }
@@ -174,9 +181,13 @@ function resetMaterials() {
   let initialScale = new THREE.Vector3(1, 1, 1);
   intersetObj.obj.scale.copy(initialScale);
   // intersetObj.obj.rotation.copy(intialRotation);
+  if (tooltip) {
+    document.querySelector(".tooltip").remove();
+    tooltip = null;
+  }
 }
 
-function checkIntersection(event) {
+function checkIntersection(event: PointerEvent) {
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -193,6 +204,7 @@ function checkIntersection(event) {
   for (let i = 0; i < intersects.length; i++) {
     let intersectedObject = intersects[i].object;
     if (intersectedObject instanceof THREE.Mesh) {
+      showTooltip(event, intersectedObject.name);
       intersetObj.intersects = true;
       intersetObj.obj = intersectedObject;
       intersetObj.orginalRotation = intersectedObject.rotation.clone();
@@ -203,7 +215,25 @@ function checkIntersection(event) {
   }
 }
 
-function helperSphere(radius: number, position: THREE.Vector3, color?: THREE.ColorRepresentation) {
+function showTooltip(event, text) {
+  if (tooltip) {
+    tooltip.style.left = `${event.clientX}px`;
+    tooltip.style.top = `${event.clientY}px`;
+  } else {
+    tooltip = document.createElement("div");
+    tooltip.textContent = text;
+    tooltip.classList.add("tooltip");
+    tooltip.style.left = `${event.clientX}px`;
+    tooltip.style.top = `${event.clientY}px`;
+    document.body.appendChild(tooltip);
+  }
+}
+
+function helperSphere(
+  radius: number,
+  position: THREE.Vector3,
+  color?: THREE.ColorRepresentation
+) {
   if (color === undefined) {
     const randomColor = new THREE.Color(Math.random(), Math.random(), Math.random());
     color = randomColor;
@@ -237,33 +267,27 @@ function phoneSelected() {
     x: 7.5,
     y: 6.5,
     z: -1,
-    duration: 2, 
-    ease: "power2.inOut", 
-    onUpdate: () => {
-      controls.update(); 
-    },
-    onComplete: ()=>{
-      modal.style.display = "block";
-    }
+    duration: 2,
+    ease: "power2.inOut",
+    onUpdate: () => controls.update(),
+    onComplete: () => modal.style.display = "block",
   });
 
   gsap.to(controls.target, {
     x: tableLookat.x,
     y: tableLookat.y,
     z: tableLookat.z,
-    duration: 1, 
+    duration: 1,
     ease: "power2.inOut",
-  })
+  });
 
-  
-
-  let phonePicked = intersetObj.obj.clone()
+  let phonePicked = intersetObj.obj.clone();
   let boundingBox = new THREE.Box3().setFromObject(phonePicked);
   let center = boundingBox.getCenter(new THREE.Vector3());
   phonePicked.position.sub(center);
 
   modalscene.add(phonePicked);
-  modalcontrols.target.set(0,0,0);
+  modalcontrols.target.set(0, 0, 0);
 }
 
 function phoneDeselected() {
@@ -273,9 +297,9 @@ function phoneDeselected() {
     y: pos.y,
     z: pos.z,
     duration: 1,
-    ease: "power2.inOut", 
+    ease: "power2.inOut",
     onUpdate: () => {
-      controls.update(); 
+      controls.update();
     },
   });
 
@@ -285,7 +309,7 @@ function phoneDeselected() {
     z: shelfLookat.z,
     duration: 1,
     ease: "power2.inOut",
-  })
+  });
 
   modalcontrols.reset();
 
@@ -307,6 +331,9 @@ function animate() {
 
 // gui_adder();
 animate();
+
+let closeButton = document.querySelector("#close-button") as HTMLButtonElement;
+closeButton.onclick = () => phoneDeselected();
 
 modal.addEventListener("click", (event) => {
   if (event.target === modal) {

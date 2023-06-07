@@ -55,6 +55,15 @@ label {
   color: white;
 }
 
+.tooltip {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0);
+  color: #fff;
+  padding: 8px;
+  font-size: 14px;
+  pointer-events: none;
+}
+
 /* Customize the scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
