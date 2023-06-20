@@ -1,8 +1,8 @@
-import { GUI } from "dat.gui";
-import { gsap } from "gsap";
-import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { GUI } from 'dat.gui';
+import { gsap } from 'gsap';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 let phones: THREE.Object3D[] = [];
 
@@ -24,8 +24,8 @@ const intersetObj = {
   normal: new THREE.Vector3(),
 };
 
-const modal = document.querySelector("#modal") as HTMLElement;
-const modalCanvas = document.querySelector("#modal-canvas") as HTMLElement;
+const modal = document.querySelector('#modal') as HTMLElement;
+const modalCanvas = document.querySelector('#modal-canvas') as HTMLElement;
 const modalwidth = 800; //modalCanvas.offsetWidth;
 const modalheight = 500; //modalCanvas.offsetHeight;
 
@@ -37,16 +37,16 @@ scene.background = new THREE.Color(0xffffff);
 const modalscene = new THREE.Scene();
 
 // Create a camera
-const camera = new THREE.PerspectiveCamera(50,  window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
 const pos = new THREE.Vector3(12, 5.5, -1.1); //31, 13, -6.8
 camera.position.copy(pos); //28, 17, -5
 
 // Create a camera for modal window
 const modalcamera = new THREE.PerspectiveCamera(50, modalwidth / modalheight, 0.1, 1000);
-modalcamera.position.set(1,0,0);
+modalcamera.position.set(1, 0, 0);
 
 // Create a renderer
-const canvas = document.querySelector("#main-canvas");
+const canvas = document.querySelector('#main-canvas');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -66,7 +66,7 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enablePan = false;
 controls.enableDamping = true;
 controls.dampingFactor = 0.1;
-controls.addEventListener("change", () => (mouseMoved = true));
+controls.addEventListener('change', () => (mouseMoved = true));
 controls.minDistance = 5;
 controls.maxDistance = 15;
 controls.minPolarAngle = Math.PI / 4;
@@ -84,16 +84,19 @@ modalcontrols.maxDistance = 2;
 
 const gltfLoader = new GLTFLoader(loadingManager());
 
-gltfLoader.load( "./assets/mobile-shop.glb", (gltf) => {
+gltfLoader.load(
+  './assets/mobile-shop.glb',
+  (gltf) => {
     const mobileShop = gltf.scene;
+    console.log(mobileShop);
     gltf.scene.traverse((child) => {
-      if (child.name === "phones") {
+      if (child.name === 'phones') {
         phones.push(...child.children);
       }
-      if (child.name === "table-empty") {
+      if (child.name === 'table-empty') {
         tableLookat = child.position.clone();
       }
-      if (child.name === "shelf-empty") {
+      if (child.name === 'shelf-empty') {
         shelfLookat = child.position.clone();
       }
     });
@@ -108,23 +111,24 @@ gltfLoader.load( "./assets/mobile-shop.glb", (gltf) => {
 );
 
 function loadingManager() {
-  const progressBar = document.getElementById('progress-bar') as HTMLProgressElement
-  const progressBarContainer = document.querySelector('.progress-bar-container') as HTMLElement
+  const progressBar = document.getElementById('progress-bar') as HTMLProgressElement;
+  const progressBarContainer = document.querySelector('.progress-bar-container') as HTMLElement;
 
   const manager = new THREE.LoadingManager();
-  manager.onLoad = () => (progressBarContainer.style.display = "none");
-  manager.onProgress = (url, itemsLoaded, itemsTotal) => (progressBar.value = (itemsLoaded / itemsTotal) * 100);
-  manager.onError = (url) => console.log("There was an error loading " + url);
+  manager.onLoad = () => (progressBarContainer.style.display = 'none');
+  manager.onProgress = (url, itemsLoaded, itemsTotal) =>
+    (progressBar.value = (itemsLoaded / itemsTotal) * 100);
+  manager.onError = (url) => console.log('There was an error loading ' + url);
 
   return manager;
 }
 
 //add light
-const light = new THREE.DirectionalLight(0xffffff, 1);
-light.position.set(2, 2, 5);
-scene.add(light);
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
-scene.add(ambientLight);
+// const light = new THREE.DirectionalLight(0xffffff, 1);
+// light.position.set(15, 15, 15);
+// scene.add(light);
+// const ambientLight = new THREE.AmbientLight(0xffffff, 10);
+// scene.add(ambientLight);
 
 // update canvas when resize happen
 function onWindowResize() {
@@ -136,9 +140,9 @@ function onWindowResize() {
 // function to add dat.gui
 function gui_adder() {
   const gui = new GUI();
-  const cameraFolder = gui.addFolder("Camera");
-  let positionFolder = cameraFolder.addFolder("Position");
-  let rotationFolder = cameraFolder.addFolder("Rotation");
+  const cameraFolder = gui.addFolder('Camera');
+  let positionFolder = cameraFolder.addFolder('Position');
+  let rotationFolder = cameraFolder.addFolder('Rotation');
 
   // Create a separate object to hold the camera position and rotation
   const cameraValues = {
@@ -146,13 +150,13 @@ function gui_adder() {
     rotation: camera.rotation.clone(),
   };
 
-  positionFolder.add(cameraValues.position, "x", -100, 100, 0.1).name("x");
-  positionFolder.add(cameraValues.position, "y", -100, 100, 0.1).name("y");
-  positionFolder.add(cameraValues.position, "z", -100, 100, 0.1).name("z");
+  positionFolder.add(cameraValues.position, 'x', -100, 100, 0.1).name('x');
+  positionFolder.add(cameraValues.position, 'y', -100, 100, 0.1).name('y');
+  positionFolder.add(cameraValues.position, 'z', -100, 100, 0.1).name('z');
 
-  rotationFolder.add(cameraValues.rotation, "x", -Math.PI, Math.PI).name("x");
-  rotationFolder.add(cameraValues.rotation, "y", -Math.PI, Math.PI).name("y");
-  rotationFolder.add(cameraValues.rotation, "z", -Math.PI, Math.PI).name("z");
+  rotationFolder.add(cameraValues.rotation, 'x', -Math.PI, Math.PI).name('x');
+  rotationFolder.add(cameraValues.rotation, 'y', -Math.PI, Math.PI).name('y');
+  rotationFolder.add(cameraValues.rotation, 'z', -Math.PI, Math.PI).name('z');
 
   // Update camera position and rotation when dat.gui values change
   positionFolder.__controllers.forEach((controller) => {
@@ -168,7 +172,7 @@ function gui_adder() {
   });
 
   // Create OrbitControls and update dat.gui values when controls change
-  controls.addEventListener("change", function () {
+  controls.addEventListener('change', function () {
     cameraValues.position.copy(camera.position);
     cameraValues.rotation.copy(camera.rotation);
     gui.updateDisplay();
@@ -182,7 +186,7 @@ function resetMaterials() {
   intersetObj.obj.scale.copy(initialScale);
   // intersetObj.obj.rotation.copy(intialRotation);
   if (tooltip) {
-    document.querySelector(".tooltip").remove();
+    document.querySelector('.tooltip').remove();
     tooltip = null;
   }
 }
@@ -220,20 +224,16 @@ function showTooltip(event, text) {
     tooltip.style.left = `${event.clientX}px`;
     tooltip.style.top = `${event.clientY}px`;
   } else {
-    tooltip = document.createElement("div");
+    tooltip = document.createElement('div');
     tooltip.textContent = text;
-    tooltip.classList.add("tooltip");
+    tooltip.classList.add('tooltip');
     tooltip.style.left = `${event.clientX}px`;
     tooltip.style.top = `${event.clientY}px`;
     document.body.appendChild(tooltip);
   }
 }
 
-function helperSphere(
-  radius: number,
-  position: THREE.Vector3,
-  color?: THREE.ColorRepresentation
-) {
+function helperSphere(radius: number, position: THREE.Vector3, color?: THREE.ColorRepresentation) {
   if (color === undefined) {
     const randomColor = new THREE.Color(Math.random(), Math.random(), Math.random());
     color = randomColor;
@@ -268,9 +268,9 @@ function phoneSelected() {
     y: 6.5,
     z: -1,
     duration: 2,
-    ease: "power2.inOut",
+    ease: 'power2.inOut',
     onUpdate: () => controls.update(),
-    onComplete: () => modal.style.display = "block",
+    onComplete: () => (modal.style.display = 'block'),
   });
 
   gsap.to(controls.target, {
@@ -278,7 +278,7 @@ function phoneSelected() {
     y: tableLookat.y,
     z: tableLookat.z,
     duration: 1,
-    ease: "power2.inOut",
+    ease: 'power2.inOut',
   });
 
   let phonePicked = intersetObj.obj.clone();
@@ -291,13 +291,13 @@ function phoneSelected() {
 }
 
 function phoneDeselected() {
-  modal.style.display = "none";
+  modal.style.display = 'none';
   gsap.to(camera.position, {
     x: pos.x,
     y: pos.y,
     z: pos.z,
     duration: 1,
-    ease: "power2.inOut",
+    ease: 'power2.inOut',
     onUpdate: () => {
       controls.update();
     },
@@ -308,7 +308,7 @@ function phoneDeselected() {
     y: shelfLookat.y,
     z: shelfLookat.z,
     duration: 1,
-    ease: "power2.inOut",
+    ease: 'power2.inOut',
   });
 
   modalcontrols.reset();
@@ -332,17 +332,17 @@ function animate() {
 // gui_adder();
 animate();
 
-let closeButton = document.querySelector("#close-button") as HTMLButtonElement;
+let closeButton = document.querySelector('#close-button') as HTMLButtonElement;
 closeButton.onclick = () => phoneDeselected();
 
-modal.addEventListener("click", (event) => {
+modal.addEventListener('click', (event) => {
   if (event.target === modal) {
     phoneDeselected();
   }
 });
-window.addEventListener("resize", onWindowResize);
-window.addEventListener("pointerdown", () => (mouseMoved = false));
-window.addEventListener("pointerup", (event) => {
+window.addEventListener('resize', onWindowResize);
+window.addEventListener('pointerdown', () => (mouseMoved = false));
+window.addEventListener('pointerup', (event) => {
   if (mouseMoved === false) {
     checkIntersection(event);
 
@@ -351,4 +351,4 @@ window.addEventListener("pointerup", (event) => {
     }
   }
 });
-window.addEventListener("pointermove", checkIntersection);
+window.addEventListener('pointermove', checkIntersection);
